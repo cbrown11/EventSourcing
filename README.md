@@ -9,6 +9,10 @@ So this library gives a template to implement a DDD pattern using the Event Sour
 
 Reference: This is a re-implementation of Greg Young's [SimpleCQRS](https://github.com/gregoryyoung/m-r) project, arguably the de-facto sample application for CQRS, DDD & Event Sourcing.
 
+## Package Dependencies
+- DomainDrivenDesign
+
+
 ## Event Store (IDomainRepository)
 These should be written in their own package or project libabry and injected in based on IDomainRepository. Not added to this library.
 
