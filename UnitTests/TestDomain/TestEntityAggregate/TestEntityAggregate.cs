@@ -1,0 +1,47 @@
+
+﻿namespace EventSourcing.UnitTests.TestDomain.TestEntityAggregate
+{
+    using DomainDrivenDesign.DDD;
+    using DomainDrivenDesign.DDD.Interfaces;
+    using DomainDrivenDesign.Shared;
+    using EventSourcing.UnitTests.TestDomain.Events;
+
+
+    public class TestEntityAggregate : AggregateRoot, IAggregate
+    {
+        public string Id { get; set; }
+        public override string AggregateId
+        {
+            get { return Id; }
+        }
+
+        public string TestProperty { get; set; }
+
+        public TestEntityAggregate()
+        {
+            RegisterTransition<TestEntityCreated>(Apply);
+            RegisterTransition<TestEntityModified>(Apply);
+        }
+
+        private void Apply(TestEntityCreated obj)
+        {
+            Id = obj.Id;
+        }
+
+        private void Apply(TestEntityModified obj)
+        {
+            TestProperty = obj.TestProperty;
+        }
+
+        public void Create(AuditInfo auditInfo, string id)
+        {
+            RaiseEvent(new TestEntityCreated(id, auditInfo));
+        }
+
+        public void Update(AuditInfo auditInfo, string id, string testProperty)
+        {
+            RaiseEvent(new TestEntityModified(id, auditInfo, testProperty));
+        }
+
+    }
+}
