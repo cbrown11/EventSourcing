@@ -11,6 +11,7 @@ Reference: This is a re-implementation of Greg Young's [SimpleCQRS](https://gith
 
 ## Package Dependencies
 - DomainDrivenDesign
+- EventSourcing.InMemory
 
 
 ## Event Store (IDomainRepository)
