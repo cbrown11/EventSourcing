@@ -1,11 +1,9 @@
 
 ﻿namespace EventSourcing.UnitTests.TestDomain.Events
 {
-    using DomainDrivenDesign.DDD;
-    using DomainDrivenDesign.DDD.Interfaces;
+    using DomainDrivenDesign;
+    using DomainDrivenDesign.Interfaces;
     using DomainDrivenDesign.Shared;
-
-
     public class TestEntityCreated : DomainEvent, IDomainEvent
     {
         public string TestProperty { get; set; }

@@ -1,5 +1,7 @@
 
-namespace JHI.Core.EventSourcing.EventSourcing
+using DomainDrivenDesign.Shared.Interfaces;
+
+namespace EventSourcing.EventSourcing
 {
     public class EventStoreEvent<T>
         where T : IEvent

@@ -1,7 +1,9 @@
 
+using DomainDrivenDesign.Interfaces;
+
 namespace EventSourcing.EventSourcing.Interfaces
 {
-    using DomainDrivenDesign.DDD.Interfaces;
+
 
     public interface IDomainEventPublisher
     {

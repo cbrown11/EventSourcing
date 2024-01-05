@@ -1,17 +1,16 @@
 
+using Machine.Specifications;
+using Moq;
+using It = Machine.Specifications.It;
+using DomainDrivenDesign.Interfaces;
+using EventSourcing.EventSourcing.Interfaces;
+using DomainDrivenDesign.Shared;
+using EventSourcing.UnitTests.TestDomain.TestEntityAggregate;
+using EventSourcing.InMemory;
 
-namespace EventSourcing.UnitTests.EventStore
+
+namespace EventSourcing.UnitTests
 {
-    using Machine.Specifications;
-    using Moq;
-    using It = Machine.Specifications.It;
-    using DomainDrivenDesign.DDD.Interfaces;
-    using EventSourcing.EventSourcing.Interfaces;
-    using EventSourcing.EventSourcing.Repository;
-    using DomainDrivenDesign.Shared;
-    using EventSourcing.UnitTests.TestDomain.TestEntityAggregate;
-    using EventSourcing.InMemory;
-
 
     public abstract class InMemoryDomainRepositorySpec
     {

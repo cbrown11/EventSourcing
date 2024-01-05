@@ -1,8 +1,7 @@
 namespace EventSourcing.EventSourcing.Repository
 {
-    using System.Diagnostics;
-    using DomainDrivenDesign.DDD.Interfaces;
-    using EventSourcing.EventSourcing.Interfaces;
+    using DomainDrivenDesign.Interfaces;
+    using EventSourcing.Interfaces;
 
     using Newtonsoft.Json;
 

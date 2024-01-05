@@ -1,6 +1,6 @@
 namespace EventSourcing.EventSourcing.Interfaces
 {
-    using DomainDrivenDesign.DDD.Interfaces;
+    using DomainDrivenDesign.Interfaces;
 
     public interface IDomainRepository
     {

@@ -7,18 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-  
     <PackageReference Include="Machine.Specifications.Runner.VisualStudio" Version="2.10.2" />
     <PackageReference Include="Machine.Specifications.Should" Version="1.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
-  
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\JHI.Core.EventSourcing.InMemory\JHI.Core.EventSourcing.InMemory.csproj" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <None Update="appsettings.json">
@@ -26,7 +19,9 @@
     </None>
   </ItemGroup>
 
-
-
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\EventSourcing.InMemory\EventSourcing.InMemory.csproj" />
+    <ProjectReference Include="..\..\..\src\EventSourcing\EventSourcing.csproj" />
+  </ItemGroup>
 
 </Project>

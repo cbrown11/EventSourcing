@@ -1,11 +1,11 @@
+using DomainDrivenDesign;
+using DomainDrivenDesign.Interfaces;
+using DomainDrivenDesign.Shared;
+using EventSourcing.UnitTests.TestDomain.Events;
+
 
 ﻿namespace EventSourcing.UnitTests.TestDomain.TestEntityAggregate
 {
-    using DomainDrivenDesign.DDD;
-    using DomainDrivenDesign.DDD.Interfaces;
-    using DomainDrivenDesign.Shared;
-    using EventSourcing.UnitTests.TestDomain.Events;
-
 
     public class TestEntityAggregate : AggregateRoot, IAggregate
     {
