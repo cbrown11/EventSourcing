@@ -12,10 +12,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src    
+    runs-on: ubuntu-latest  
     outputs: 
       Version: ${{ steps.gitversion.outputs.SemVer }}
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }} 
