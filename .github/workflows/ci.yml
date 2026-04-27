@@ -55,25 +55,15 @@ jobs:
           echo "FullSemVer=${{ steps.gitversion.outputs.FullSemVer }}"
           echo "Four-part=${{ steps.pkgver.outputs.version }}"
 
-      # DomainDrivenDesign (and Cbrown11.*) resolve from nuget.pkg.github.com/cbrown11. GITHUB_TOKEN only works for packages owned by this repository's owner; it cannot read another user's feed, so restore would 403 without a PAT.
-      # Repo → Settings → Secrets and variables → Actions → GH_PACKAGES_READ_TOKEN: classic PAT with read:packages (and repo scope if the PAT owner's packages are private). https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-nuget-registry
-      - name: Require GitHub Packages read token
-        shell: bash
-        env:
-          GPR_READ: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
-        run: |
-          if [ -z "$GPR_READ" ]; then
-            echo "::error::Missing secret GH_PACKAGES_READ_TOKEN. Add a PAT with read:packages for the GitHub account that owns the cbrown11 NuGet feed. The repository GITHUB_TOKEN cannot authenticate to another owner's GitHub Packages."
-            exit 1
-          fi
-
+      # setup-dotnet requires NUGET_AUTH_TOKEN whenever source-url is set. Use PAT for GPR; if unset, fall back so the step does not fail (restore still needs the PAT for cross-repo packages).
+      # Repo → Settings → Secrets and variables → Actions → New repository secret: GH_PACKAGES_READ_TOKEN (classic PAT: read:packages, +repo if private). https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-nuget-registry
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           source-url: https://nuget.pkg.github.com/cbrown11/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Cache NuGet packages
         uses: actions/cache@v4
