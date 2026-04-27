@@ -1,8 +1,7 @@
-namespace EventSourcing.EventSourcing.Repository
+namespace EventSourcing.Repository
 {
     using DomainDrivenDesign.Interfaces;
     using EventSourcing.Interfaces;
-
     using Newtonsoft.Json;
 
     public abstract class DomainRepositoryBase : IDomainRepository

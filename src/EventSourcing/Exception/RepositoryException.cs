@@ -1,4 +1,4 @@
-namespace EventSourcing.EventSourcing.Exception
+namespace EventSourcing.Exception
 {
     [Serializable]
     public class RepositoryException : System.Exception

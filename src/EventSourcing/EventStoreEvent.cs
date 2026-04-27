@@ -1,7 +1,8 @@
 
-using DomainDrivenDesign.Shared.Interfaces;
 
-namespace EventSourcing.EventSourcing
+using Common.Models.Messages;
+
+namespace EventSourcing
 {
     public class EventStoreEvent<T>
         where T : IEvent

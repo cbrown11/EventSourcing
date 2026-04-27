@@ -3,10 +3,11 @@ using Machine.Specifications;
 using Moq;
 using It = Machine.Specifications.It;
 using DomainDrivenDesign.Interfaces;
-using EventSourcing.EventSourcing.Interfaces;
-using DomainDrivenDesign.Shared;
+
 using EventSourcing.UnitTests.TestDomain.TestEntityAggregate;
 using EventSourcing.InMemory;
+using EventSourcing.Interfaces;
+using Common.Models.AuditInfo;
 
 
 namespace EventSourcing.UnitTests
@@ -18,7 +19,7 @@ namespace EventSourcing.UnitTests
         protected static DomainRepository SUT;
         protected static TestEntityAggregate TestEntityAggregate;
         protected static Mock<IDomainEventPublisher> TransientDomainEventPublisherMock;
-        protected static Exception _exception;
+        protected static System.Exception _exception;
         Establish context = () =>
         {
             TransientDomainEventPublisherMock = new Mock<IDomainEventPublisher>();
@@ -60,7 +61,8 @@ namespace EventSourcing.UnitTests
         It should_have_not_raised_any_errors = () => _exception.ShouldBeNull();
         It should_saved_successfully = () => SUT.GetByIdAsync<TestEntityAggregate>(Id).Result.ShouldNotBeNull();
         It should_saved_the_id_successfully = () => SUT.GetByIdAsync<TestEntityAggregate>(Id).Result.Id.ShouldNotBeNull();
-        It should_publish_the_event = () => TransientDomainEventPublisherMock.Verify(foo => foo.PublishAsync(Moq.It.IsAny<IDomainEvent>(), default), Times.AtLeastOnce);
+        It should_publish_the_event = () => TransientDomainEventPublisherMock.Verify(foo => foo.PublishAsync<IDomainEvent>(Moq.It.IsAny<string>(), Moq.It.IsAny<IEnumerable<IDomainEvent>>(), default), Times.AtLeastOnce);
+
     }
 
 
@@ -84,7 +86,8 @@ namespace EventSourcing.UnitTests
         It should_have_not_raised_any_errors = () => _exception.ShouldBeNull();
         It should_saved_successfully = () => SUT.GetByIdAsync<TestEntityAggregate>(Id).Result.ShouldNotBeNull();
         It should_saved_the_id_successfully = () => SUT.GetByIdAsync<TestEntityAggregate>(Id).Result.Id.ShouldNotBeNull();
-        It should_publish_all_the_events = () => TransientDomainEventPublisherMock.Verify(foo => foo.PublishAsync(Moq.It.IsAny<IDomainEvent>(), default), Times.Exactly(CountLength + 1));
+        It should_publish_all_the_events = () => TransientDomainEventPublisherMock.Verify(foo => foo.PublishAsync<IDomainEvent>(Moq.It.IsAny<string>(), Moq.It.IsAny<IEnumerable<IDomainEvent>>(), default), Times.Once);
+
     }
 
 
@@ -107,7 +110,8 @@ namespace EventSourcing.UnitTests
         Because of = () => _exception = Catch.Exception(() => SUT.SaveAsync(TestEntityAggregate));
         It should_have_not_raised_any_errors = () => _exception.ShouldBeNull();
         It should_saved_successfully = () => SUT.GetByIdAsync<TestEntityAggregate>(Id).Result.ShouldNotBeNull();
-        It should_publish_all_the_events = () => TransientDomainEventPublisherMock.Verify(foo => foo.PublishAsync(Moq.It.IsAny<IDomainEvent>(), default), Times.Exactly(CountLength + 1));
+        It should_publish_all_the_events = () => TransientDomainEventPublisherMock.Verify(foo => foo.PublishAsync<IDomainEvent>(Moq.It.IsAny<string>(), Moq.It.IsAny<IEnumerable<IDomainEvent>>(), default), Times.Once);
+
     }
 
     [Subject(typeof(DomainRepository))]
@@ -155,6 +159,6 @@ namespace EventSourcing.UnitTests
         Because of = () => _exception = Catch.Exception(() => SUT.SaveAsync(TestEntityAggregate));
         It should_have_not_raised_any_errors = () => _exception.ShouldBeNull();
         It should_saved_successfully = () => SUT.GetByIdAsync<TestEntityAggregate>(Id).Result.ShouldNotBeNull();
-        It should_publish_all_the_events = () => TransientDomainEventPublisherMock.Verify(foo => foo.PublishAsync(Moq.It.IsAny<IDomainEvent>(), default), Times.Exactly(CountLength + 1));
+        It should_publish_all_the_events = () => TransientDomainEventPublisherMock.Verify(foo => foo.PublishAsync<IDomainEvent>(Moq.It.IsAny<string>(), Moq.It.IsAny<IEnumerable<IDomainEvent>>(), default), Times.Once);
     }
 }

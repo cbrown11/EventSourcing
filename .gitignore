@@ -1,2 +1,14 @@
-obj/
-bin/
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/EventSourcing/DesignTimeBuild
+/.vs/EventSourcing/FileContentIndex
+/.vs/EventSourcing/v17
+/src/EventSourcing/bin/Debug/net10.0
+/src/EventSourcing.InMemory/bin/Debug/net10.0
+/src/EventSourcing/obj
+/src/EventSourcing.InMemory/obj
+/test/UnitTests/EventSourcing.UnitTests/bin/Debug/net10.0
+/test/UnitTests/EventSourcing.UnitTests/obj
+/.vs/ProjectEvaluation

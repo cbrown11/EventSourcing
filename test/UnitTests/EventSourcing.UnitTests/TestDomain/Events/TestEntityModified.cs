@@ -1,9 +1,8 @@
 ﻿namespace EventSourcing.UnitTests.TestDomain.Events
 {
+    using Common.Models.AuditInfo;
     using DomainDrivenDesign;
     using DomainDrivenDesign.Interfaces;
-    using DomainDrivenDesign.Shared;
-
 
     public class TestEntityModified : DomainEvent, IDomainEvent
     {

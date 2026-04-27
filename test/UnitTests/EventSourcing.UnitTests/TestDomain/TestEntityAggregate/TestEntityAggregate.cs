@@ -1,6 +1,6 @@
 using DomainDrivenDesign;
 using DomainDrivenDesign.Interfaces;
-using DomainDrivenDesign.Shared;
+using Common.Models.AuditInfo;
 using EventSourcing.UnitTests.TestDomain.Events;
 
 
@@ -16,6 +16,8 @@ using EventSourcing.UnitTests.TestDomain.Events;
         }
 
         public string TestProperty { get; set; }
+
+        public override string Name => nameof(TestEntityAggregate);
 
         public TestEntityAggregate()
         {

@@ -1,7 +1,7 @@
-namespace EventSourcing.EventSourcing.Decorators
+namespace EventSourcing.Decorators
 {
-    using DomainDrivenDesign.DDD.Interfaces;
-    using EventSourcing.EventSourcing.Interfaces;
+    using DomainDrivenDesign.Interfaces;
+    using EventSourcing.Interfaces;
 
 
     public class PublisherPublishEventsOnlyDecorator : IDomainEventPublisher
@@ -21,7 +21,8 @@ namespace EventSourcing.EventSourcing.Decorators
                 return Task.CompletedTask;
             }
 
-            return this.domainEventPublisher.PublishAsync(domainName, filterEvents, token);
+            return domainEventPublisher.PublishAsync(domainName, filterEvents, token);
         }
+
     }
 }

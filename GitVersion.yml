@@ -1,1 +1,5 @@
+# https://gitversion.net/docs/reference/configuration
+# Do not add `workflow:` here — not supported in GitVersion 5.x GitVersion.yml (GitHub Actions is auto-detected).
+# Pack/tag use Major.Minor.Patch.CommitsSinceVersionSource (e.g. 2.0.3.14), not GitVersion's default NuGet -ciNNNN label.
+mode: ContinuousDeployment
 next-version: 1.0.0

@@ -1,4 +1,4 @@
-namespace EventSourcing.EventSourcing.Interfaces
+namespace EventSourcing.Interfaces
 {
     public interface IPublishEvent
     {

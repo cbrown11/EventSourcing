@@ -1,12 +1,11 @@
 
 using DomainDrivenDesign.Interfaces;
 
-namespace EventSourcing.EventSourcing.Interfaces
+namespace EventSourcing.Interfaces
 {
-
 
     public interface IDomainEventPublisher
     {
-        Task PublishAsync<T>(T @event, CancellationToken token = default) where T : IDomainEvent;
+        Task PublishAsync<T>(string domainName, IEnumerable<T> events, CancellationToken token = default) where T : IDomainEvent;
     }
 }

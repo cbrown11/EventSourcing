@@ -1,15 +1,15 @@
-using System.Collections.Generic;
-using System.Linq;
-using DomainDrivenDesign.Interfaces;
-using EventSourcing.EventSourcing.Exception;
-using EventSourcing.EventSourcing.Interfaces;
-using EventSourcing.EventSourcing.Repository;
 
-using Newtonsoft.Json;
 
 
 namespace EventSourcing.InMemory
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using DomainDrivenDesign.Interfaces;
+    using EventSourcing.Exception;
+    using EventSourcing.Interfaces;
+    using EventSourcing.Repository;
+    using Newtonsoft.Json;
 
     public class DomainRepository : DomainRepositoryBase
     {
@@ -44,13 +44,11 @@ namespace EventSourcing.InMemory
             }
 
             latestEvents.AddRange(uncommitedEvents);
-            aggregate.ClearUncommitedEvents();
-            foreach (IDomainEvent @event in uncommitedEvents)
-            {
-                await PublishEventAsync(@event, token);
-            }
 
+            await this.PublishEventsToSubsribersAsync(aggregate.Name, uncommitedEvents, token);
+            aggregate.ClearUncommitedEvents();
             return uncommitedEvents;
+ 
         }
 
         public override bool Exists<TResult>(string id)
@@ -65,12 +63,17 @@ namespace EventSourcing.InMemory
 
         public override async Task<TResult> GetByIdAsync<TResult>(string id, CancellationToken token = default)
         {
+            return await NewMethod<TResult>(id, token);
+        }
+
+        private async Task<TResult> NewMethod<TResult>(string id, CancellationToken token) where TResult : IAggregate, new()
+        {
             try
             {
                 var domainEvents = await GetEventsForAggregate<TResult>(id, token);
                 return BuildAggregate<TResult>(domainEvents);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 throw new RepositoryException($"Unable to retrieve from eventStore for {id}", ex);
             }
@@ -92,11 +95,12 @@ namespace EventSourcing.InMemory
             return eventStore.Last().Key;
         }
 
-        protected async Task PublishEventAsync(IDomainEvent @event, CancellationToken token = default)
+
+        protected virtual async Task PublishEventsToSubsribersAsync(string aggregate, ICollection<IDomainEvent> events, CancellationToken token = default)
         {
-            if (publisher != null)
+            if (this.publisher != null)
             {
-                await publisher.PublishAsync(@event, token);
+                await this.publisher.PublishAsync(aggregate, events, token);
             }
         }
 

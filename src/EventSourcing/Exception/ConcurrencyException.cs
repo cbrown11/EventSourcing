@@ -1,4 +1,4 @@
-namespace EventSourcing.EventSourcing.Exception
+namespace EventSourcing.Exception
 {
     public class ConcurrencyException : System.Exception
     {
