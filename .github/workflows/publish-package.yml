@@ -63,6 +63,7 @@ jobs:
           echo "NuGetVersion (Git default): ${{ steps.gitversion.outputs.NuGetVersion }}"
           echo "Four-part (used for pack/tag): ${{ steps.pkgver.outputs.version }}"
 
+      # Restore pulls DomainDrivenDesign from GPR; if private, same rules as CI (Actions access on package or PAT).
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:

@@ -22,6 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Same as CI: private GPR deps need PAT (GH_PACKAGES_READ_TOKEN) or package "Manage Actions access" for this repo.
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:

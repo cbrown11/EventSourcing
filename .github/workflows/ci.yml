@@ -55,8 +55,10 @@ jobs:
           echo "FullSemVer=${{ steps.gitversion.outputs.FullSemVer }}"
           echo "Four-part=${{ steps.pkgver.outputs.version }}"
 
-      # setup-dotnet requires NUGET_AUTH_TOKEN whenever source-url is set. Use PAT for GPR; if unset, fall back so the step does not fail (restore still needs the PAT for cross-repo packages).
-      # Repo → Settings → Secrets and variables → Actions → New repository secret: GH_PACKAGES_READ_TOKEN (classic PAT: read:packages, +repo if private). https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-nuget-registry
+      # Private NuGet on GPR (e.g. DomainDrivenDesign): GITHUB_TOKEN alone often returns 403 if the package
+      # is not from this repo. Fix on GitHub: open the package → Package settings → Manage Actions access → add this repo,
+      # OR add secret GH_PACKAGES_READ_TOKEN (classic PAT, read:packages). Public packages may restore without that.
+      # https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
