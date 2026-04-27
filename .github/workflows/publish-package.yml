@@ -63,13 +63,23 @@ jobs:
           echo "NuGetVersion (Git default): ${{ steps.gitversion.outputs.NuGetVersion }}"
           echo "Four-part (used for pack/tag): ${{ steps.pkgver.outputs.version }}"
 
+      - name: Require GitHub Packages read token
+        shell: bash
+        env:
+          GPR_READ: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
+        run: |
+          if [ -z "$GPR_READ" ]; then
+            echo "::error::Missing secret GH_PACKAGES_READ_TOKEN. Add a PAT with read:packages for the GitHub account that owns the cbrown11 NuGet feed."
+            exit 1
+          fi
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           source-url: https://nuget.pkg.github.com/cbrown11/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
 
       - name: Restore
         run: dotnet restore EventSourcing.sln
