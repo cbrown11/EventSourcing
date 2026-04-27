@@ -1,0 +1,113 @@
+name: Publish package
+
+# Pushes Cbrown11.EventSourcing to GitHub Packages (private to the repo unless you change visibility).
+# NuGet/package version = Major.Minor.Patch.CommitsSinceVersionSource (e.g. 2.0.3.14), not GitVersion's default -ci0014 label. After push from main, tags v{version} if absent. Triggers: push to main, tag v*, release published, manual.
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+concurrency:
+  group: publish-package
+  cancel-in-progress: false
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  CONFIGURATION: Release
+  PACKAGE_PROJECT: src/EventSourcing.csproj
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: 5.x
+
+      - name: GitVersion
+        uses: gittools/actions/gitversion/execute@v0.9.7
+        id: gitversion
+        with:
+          useConfigFile: "true"
+
+      - name: Four-part package version (Major.Minor.Patch.CommitsSinceVersionSource)
+        id: pkgver
+        run: |
+          M=$(dotnet-gitversion /showvariable Major)
+          Mi=$(dotnet-gitversion /showvariable Minor)
+          P=$(dotnet-gitversion /showvariable Patch)
+          C=$(dotnet-gitversion /showvariable CommitsSinceVersionSource)
+          VER="${M}.${Mi}.${P}.${C}"
+          echo "version=${VER}" >> "$GITHUB_OUTPUT"
+          echo "PackageVersion (four-part)=${VER}"
+
+      - name: Show version
+        run: |
+          echo "SemVer: ${{ steps.gitversion.outputs.SemVer }}"
+          echo "NuGetVersion (Git default): ${{ steps.gitversion.outputs.NuGetVersion }}"
+          echo "Four-part (used for pack/tag): ${{ steps.pkgver.outputs.version }}"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          source-url: https://nuget.pkg.github.com/cbrown11/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Restore
+        run: dotnet restore EventSourcing.sln
+
+      - name: Build
+        run: dotnet build EventSourcing.sln -c ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Test
+        run: dotnet test EventSourcing.sln -c ${{ env.CONFIGURATION }} --no-build --verbosity normal
+
+      - name: Pack
+        shell: bash
+        run: |
+          out="${{ github.workspace }}/artifacts"
+          dotnet pack ${{ env.PACKAGE_PROJECT }} -c ${{ env.CONFIGURATION }} --no-build -o "$out" \
+            -p:Version='${{ steps.pkgver.outputs.version }}' \
+            -p:PackageVersion='${{ steps.pkgver.outputs.version }}'
+
+      # Do not `dotnet nuget add source` here: the feed URL is already present (repo nuget.config + setup-dotnet), and a second add fails with "already been added".
+      - name: Push to GitHub Packages
+        run: |
+          dotnet nuget push ./artifacts/*.nupkg \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key ${{ secrets.GITHUB_TOKEN }} \
+            --skip-duplicate
+
+      # Annotated tag v{Major.Minor.Patch.Commits} — same string as the NuGet package version.
+      - name: Tag repository with package version
+        if: success() && github.ref == 'refs/heads/main'
+        env:
+          PKG_VERSION: ${{ steps.pkgver.outputs.version }}
+        run: |
+          TAG="v${PKG_VERSION}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists; skipping."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "publish: $TAG"
+          git push origin "$TAG"

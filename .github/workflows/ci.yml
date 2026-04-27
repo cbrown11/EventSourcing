@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  CONFIGURATION: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: 5.x
+
+      - name: GitVersion
+        uses: gittools/actions/gitversion/execute@v0.9.7
+        id: gitversion
+        with:
+          useConfigFile: "true"
+
+      - name: Four-part package version (Major.Minor.Patch.CommitsSinceVersionSource)
+        id: pkgver
+        run: |
+          M=$(dotnet-gitversion /showvariable Major)
+          Mi=$(dotnet-gitversion /showvariable Minor)
+          P=$(dotnet-gitversion /showvariable Patch)
+          C=$(dotnet-gitversion /showvariable CommitsSinceVersionSource)
+          VER="${M}.${Mi}.${P}.${C}"
+          echo "version=${VER}" >> "$GITHUB_OUTPUT"
+          echo "PackageVersion (four-part)=${VER}"
+
+      - name: Show version
+        run: |
+          echo "SemVer=${{ steps.gitversion.outputs.SemVer }}"
+          echo "FullSemVer=${{ steps.gitversion.outputs.FullSemVer }}"
+          echo "Four-part=${{ steps.pkgver.outputs.version }}"
+
+      # setup-dotnet requires NUGET_AUTH_TOKEN whenever source-url is set. Use PAT for GPR; if unset, fall back so the step does not fail (restore still needs the PAT for cross-repo packages).
+      # Repo → Settings → Secrets and variables → Actions → New repository secret: GH_PACKAGES_READ_TOKEN (classic PAT: read:packages, +repo if private). https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-nuget-registry
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          source-url: https://nuget.pkg.github.com/cbrown11/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/nuget.config') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore EventSourcing.sln
+
+      - name: Build
+        run: >
+          dotnet build EventSourcing.sln -c ${{ env.CONFIGURATION }} --no-restore
+          -p:Version="${{ steps.pkgver.outputs.version }}"
+          -p:InformationalVersion="${{ steps.gitversion.outputs.InformationalVersion }}"
+
+      - name: Test
+        run: |
+          dotnet test EventSourcing.sln \
+            -c ${{ env.CONFIGURATION }} \
+            --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --results-directory "${{ github.workspace }}/TestResults" \
+            --logger "trx;LogFilePrefix=test_results"
+
+      - name: Upload test and coverage artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            TestResults/**/*
