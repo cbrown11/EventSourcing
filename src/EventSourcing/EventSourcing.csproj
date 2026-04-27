@@ -8,6 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DomainDrivenDesign" Version="2.0.5.1" />
+    <PackageReference Include="DomainDrivenDesign" Version="2.0.7.3" />
   </ItemGroup>
 </Project>
