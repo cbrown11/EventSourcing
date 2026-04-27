@@ -1,6 +1,6 @@
 name: Publish package
 
-# Pushes Cbrown11.EventSourcing to GitHub Packages (private to the repo unless you change visibility).
+# Pushes EventSourcing and EventSourcing.InMemory NuGet packages to GitHub Packages.
 # NuGet/package version = Major.Minor.Patch.CommitsSinceVersionSource (e.g. 2.0.3.14), not GitVersion's default -ci0014 label. After push from main, tags v{version} if absent. Triggers: push to main, tag v*, release published, manual.
 
 on:
@@ -20,7 +20,6 @@ concurrency:
 env:
   DOTNET_VERSION: "10.0.x"
   CONFIGURATION: Release
-  PACKAGE_PROJECT: src/EventSourcing/EventSourcing.csproj
 
 jobs:
   publish:
@@ -85,10 +84,20 @@ jobs:
       - name: Pack
         shell: bash
         run: |
+          set -euo pipefail
           out="${{ github.workspace }}/artifacts"
-          dotnet pack ${{ env.PACKAGE_PROJECT }} -c ${{ env.CONFIGURATION }} --no-build -o "$out" \
-            -p:Version='${{ steps.pkgver.outputs.version }}' \
-            -p:PackageVersion='${{ steps.pkgver.outputs.version }}'
+          mkdir -p "$out"
+          ver="${{ steps.pkgver.outputs.version }}"
+          # Core first so EventSourcing.InMemory.nuspec lists a matching EventSourcing package dependency.
+          for proj in \
+            "src/EventSourcing/EventSourcing.csproj" \
+            "src/EventSourcing.InMemory/EventSourcing.InMemory.csproj"
+          do
+            echo "Packing $proj"
+            dotnet pack "$proj" -c "${{ env.CONFIGURATION }}" --no-build -o "$out" \
+              -p:Version="$ver" \
+              -p:PackageVersion="$ver"
+          done
 
       # Do not `dotnet nuget add source` here: the feed URL is already present (repo nuget.config + setup-dotnet), and a second add fails with "already been added".
       - name: Push to GitHub Packages
