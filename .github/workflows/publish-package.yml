@@ -20,7 +20,7 @@ concurrency:
 env:
   DOTNET_VERSION: "10.0.x"
   CONFIGURATION: Release
-  PACKAGE_PROJECT: src/EventSourcing.csproj
+  PACKAGE_PROJECT: src/EventSourcing/EventSourcing.csproj
 
 jobs:
   publish:
