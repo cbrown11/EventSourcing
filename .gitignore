@@ -15,3 +15,4 @@
 /test/UnitTests/EventSourcing.UnitTests/obj
 /test/UnitTests/EventSourcing.UnitTests/bin
 /.vs/ProjectEvaluation
+/artifacts
